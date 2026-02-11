@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
 @RestController
-public class AblyApplication {
+public class Application {
   public static void main(final @NotNull String @NotNull [] args) {
-    SpringApplication.run(AblyApplication.class, args);
+    SpringApplication.run(Application.class, args);
   }
 }

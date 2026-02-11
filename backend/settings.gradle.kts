@@ -19,7 +19,7 @@ rootProject.name = "ably"
 
 sequenceOf(
   "common",
-  "bootstrap"
+  "app"
 ).forEach {
   include(":$it")
   project(":$it").projectDir = file(it)
