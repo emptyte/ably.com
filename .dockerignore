@@ -1,0 +1,36 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.*
+
+# Logs
+*.log
+
+# Temporary files
+*~
+*.swp
+*.swo
+
+# Documentation
+README.md
+
+# Docker
+docker-compose*.yml
+.dockerignore
+
+# Nginx (not needed in backend/frontend builds)
+nginx.conf
+nginx.dev.conf
