@@ -11,11 +11,13 @@ class SpringApplicationConventionPlugin : Plugin<Project> {
       apply(plugin = "org.springframework.boot")
 
       dependencies {
-        "implementation"(project(":katharsis-core"))
+        "implementation"(project(":common"))
 
         "implementation"(libs.findLibrary("spring.docs.openapi.ui").get())
         "implementation"(libs.findLibrary("spring.boot.starter.flyway").get())
         "implementation"(libs.findLibrary("flyway.postgresql").get())
+
+        "implementation"(libs.findLibrary("keycloak.admin.client").get())
 
         "runtimeOnly"(libs.findLibrary("postgresql").get())
 

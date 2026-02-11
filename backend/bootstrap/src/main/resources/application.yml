@@ -1,0 +1,70 @@
+spring:
+  threads:
+    virtual:
+      enabled: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 30000
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        multiTenancy: DATABASE
+        tenant_identifier_resolver: com.ably.auth.util.TenantIdentifierResolver
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc.batch_size: 50
+        order_inserts: true
+        order_updates: true
+        format_sql: true
+
+server:
+  forward-headers-strategy: framework
+
+logging:
+  level:
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: alpha
+  use-management-port: false
+  show-actuator: true
+
+# Properties customized for JWT
+jwt:
+  auth:
+    converter:
+      resource-id: ably.com
+
+keycloak:
+  server-url: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI}
+  master-realm: master
+  admin:
+    client-id: admin-cli
+    username: ${KEYCLOAK_ADMIN_USER}
+    password: ${KEYCLOAK_ADMIN_PASSWORD}
+  client:
+    realm: ${KEYCLOAK_CLIENT_REALM}
+    resource: ${KEYCLOAK_CLIENT_ID}
+    credentials:
+      secret: ${KEYCLOAK_CLIENT_SECRET}
