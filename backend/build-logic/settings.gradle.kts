@@ -16,7 +16,7 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "kathasis-build-logic"
+rootProject.name = "build-logic"
 
 include(":${rootProject.name}-convention")
 project(":${rootProject.name}-convention").projectDir = file("convention")
