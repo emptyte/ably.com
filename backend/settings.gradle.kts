@@ -15,19 +15,20 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "katharsis"
+rootProject.name = "ably"
 
 sequenceOf(
-  "app",
-  "core",
+  "common",
+  "bootstrap"
 ).forEach {
-  include(":${rootProject.name}-$it")
-  project(":${rootProject.name}-$it").projectDir = file(it)
+  include(":$it")
+  project(":$it").projectDir = file(it)
 }
 
 sequenceOf(
-  "api"
+  "organization",
+  "identity"
 ).forEach {
-  include(":${rootProject.name}-infrastructure-$it")
-  project(":${rootProject.name}-infrastructure-$it").projectDir = file("infrastructure/$it")
+  include(":$it-module")
+  project(":$it-module").projectDir = file("module/$it")
 }
