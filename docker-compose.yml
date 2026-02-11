@@ -1,120 +1,72 @@
 services:
-  gateway:
-    image: nginx:alpine
-    container_name: '${PROJECT_NAME}-gateway'
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - backend
-      - keycloak
-      - frontend
-    networks:
-      - katharsis-net
-
   db:
-    image: postgres:17-alpine
-    container_name: '${PROJECT_NAME?Variable not set}-db'
-    restart: always
+    image: postgres:18-alpine
+    env_file:
+      - .env
     environment:
-      - PGDATA=/var/lib/postgresql/data/pgdata
-      - POSTGRES_DB=${POSTGRES_DB?Variable not set}
-      - POSTGRES_USER=${POSTGRES_USER?Variable not set}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
-    ports:
-      - 5432:5432
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_DB: ${DB_NAME?Variable not set}
+      POSTGRES_USER: ${DB_USER?Variable not set}
+      POSTGRES_PASSWORD: ${DB_PASSWORD?Variable not set}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - katharsis-net
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER}" ]
       interval: 10s
       retries: 5
-      start_period: 30s
-      timeout: 10s
+      start_period: 10s
+      timeout: 5s
+    networks:
+      - katharsis-net
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.5.2
-    command: start-dev --http-relative-path=/auth
-    container_name: '${PROJECT_NAME?Variable not set}-keycloak'
+    command: start-dev
+    env_file:
+      - .env
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USER}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      KC_DB_USERNAME: ${DB_USER}
+      KC_DB_PASSWORD: ${DB_PASSWORD}
+      KC_PROXY: edge
+      KC_HOSTNAME_STRICT: "false"
     depends_on:
       db:
         condition: service_healthy
     networks:
       - katharsis-net
-    environment:
-      KC_BOOTSTRAP_ADMIN_USERNAME: admin
-      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-      KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
-      KC_DB_USERNAME: ${POSTGRES_USER}
-      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
-      KC_HOSTNAME_STRICT: "false"
-      KC_HTTP_ENABLED: "true"
 
   backend:
-    container_name: '${PROJECT_NAME?Variable not set}-backend'
-    build:
-      context: ./backend
-      target: development
-    dns:
-      - 8.8.8.8
+    build: ./backend
+    env_file:
+      - .env
+    environment:
+      SPRING_PROFILES_ACTIVE: ${ENVIRONMENT}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: ${KEYCLOAK_ISSUER}
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: ${KEYCLOAK_ISSUER}/protocol/openid-connect/certs
     depends_on:
       db:
         condition: service_healthy
-        restart: true
       keycloak:
         condition: service_started
-        restart: true
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+      interval: 15s
     networks:
       - katharsis-net
-    environment:
-      - SERVER_SERVLET_CONTEXT_PATH=/api
-      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
-      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
-      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=${SPRING_JPA_HIBERNATE_DDL_AUTO}
-      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=${SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT}
-      - KEYCLOAK_ISSUER_URI=${KEYCLOAK_ISSUER_URI}
-      - KEYCLOAK_JWKS_URI=${KEYCLOAK_JWKS_URI}
-      - KEYCLOAK_CLIENT_ID=${KEYCLOAK_CLIENT_ID}
-    develop:
-      watch:
-        - path: ./backend
-          target: /backend
-          action: sync+restart
-          ignore:
-            - build
-            - .gradle
-            - .idea
-            - build.gradle.kts
 
   frontend:
-    container_name: '${PROJECT_NAME?Variable not set}-frontend'
-    build:
-      context: ./frontend
-      target: dev
-    ports:
-      - '3000:3000'
-    depends_on:
-      - backend
+    build: ./frontend
+    env_file:
+      - .env
     networks:
       - katharsis-net
-    develop:
-      watch:
-        - path: ./frontend
-          target: /app
-          action: sync
-          ignore:
-            - .next
-            - node_modules
-            - .git
-            - .DS_Store
-            - .env
-        - path: ./package.json
-          action: rebuild
 
 volumes:
   postgres_data:

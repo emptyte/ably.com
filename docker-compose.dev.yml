@@ -1,0 +1,38 @@
+services:
+  gateway:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+      - keycloak
+    networks:
+      - katharsis-net
+
+  frontend:
+    ports:
+      - "3000:3000"
+    develop:
+      watch:
+        - path: ./frontend
+          action: sync
+          target: /app
+          ignore:
+            - node_modules
+            - .next
+        - path: ./frontend/package.json
+          action: rebuild
+
+  backend:
+    develop:
+      watch:
+        - path: ./backend
+          target: /backend
+          action: sync+restart
+          ignore:
+            - build
+            - .gradle
+            - .idea
