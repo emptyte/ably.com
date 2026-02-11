@@ -1,7 +1,6 @@
 package team.emptyte.ably.config.application;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -11,7 +10,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import team.emptyte.ably.config.application.security.JwtAuthenticationConverter;
+import team.emptyte.ably.security.infrastructure.jwt.JwtAuthenticationConverter;
 import team.emptyte.ably.tenant.infrastructure.web.TenantFilter;
 
 @Configuration

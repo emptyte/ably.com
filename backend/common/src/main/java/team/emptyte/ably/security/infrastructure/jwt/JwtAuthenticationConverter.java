@@ -1,4 +1,4 @@
-package team.emptyte.ably.config.application.security;
+package team.emptyte.ably.security.infrastructure.jwt;
 
 import jakarta.annotation.Nonnull;
 import org.springframework.beans.factory.annotation.Value;
