@@ -1,7 +1,7 @@
 [versions]
 mapstruct = "1.6.3"
 
-spring-boot = "4.0.1"
+spring-boot = "4.0.2"
 spring-dependencymanagement = "1.1.7"
 
 [libraries]
@@ -12,6 +12,8 @@ flyway-postgresql = { group = "org.flywaydb", name = "flyway-database-postgresql
 
 mapstruct = { group = "org.mapstruct", name = "mapstruct", version.ref = "mapstruct" }
 mapstruct-processor = { group = "org.mapstruct", name = "mapstruct-processor", version.ref = "mapstruct" }
+
+keycloak-admin-client = { group = "org.keycloak", name = "keycloak-admin-client", version = "26.0.8" }
 
 spring-docs-openapi-ui = { group = "org.springdoc", name = "springdoc-openapi-starter-webmvc-ui", version = "3.0.1" }
 
