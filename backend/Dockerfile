@@ -15,7 +15,7 @@ CMD ["./gradlew", "bootRun", "--no-daemon"]
 FROM base AS build
 
 # Install dependencies and build the application using Gradle
-RUN ./gradlew :bootstrap:bootJar --no-daemon
+RUN ./gradlew :app:bootJar --no-daemon
 
 
 # Stage 2: Create the final runtime image
@@ -24,7 +24,7 @@ FROM eclipse-temurin:21-jre-jammy AS runtime
 WORKDIR /app
 
 # Copy the built JAR file from the build stage
-COPY --from=build /backend/bootstrap/build/libs/*.jar app.jar
+COPY --from=build /backend/app/build/libs/*.jar app.jar
 
 # Expose the application port
 EXPOSE 8080
